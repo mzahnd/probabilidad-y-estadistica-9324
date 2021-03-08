@@ -1,0 +1,7 @@
+name: probabilidad_y_estadistica
+dependencies:
+  - python=3.9.*
+  - scipy=1.6.*
+  - matplotlib=3.3.*
+  - sympy=1.7.*
+  - pandas=1.2.*
