@@ -155,7 +155,7 @@ def ejercicio3():
         36.9, 24.6, 28.9, 24.8, 28.1, 25.4, 34.5, 23.6, 38.4, 24.0
     ]
     data.sort()
-    bins = get_hist_bins(data, min=15, max=40, groups=5)
+    bins = get_hist_bins(data, minimum=15, maximum=40, groups=5)
 
     fig, ax = plt.subplots()
     n, bins2, patches = plt.hist(data, bins=bins, density=False, color="grey")
