@@ -50,20 +50,20 @@ def get_mode(data, retrieve='all'):
     return tmp
 
 
-def get_hist_bins(data, min=None, max=None, groups=None):
+def get_hist_bins(data, minimum=None, maximum=None, groups=None):
     """..."""
-    if not min:
-        min = math.floor(min(data))
-    if not max:
-        max = math.ceil(max(data))
+    if not minimum:
+        minimum = math.floor(min(data))
+    if not maximum:
+        maximum = math.ceil(max(data))
     if not groups:
         groups = round(math.log2(data.len()))
 
     bins = list()
     for current in range(groups):
-        bins.append(min + current*groups)
+        bins.append(minimum + current*groups)
 
-    bins.append(max)
+    bins.append(maximum)
 
     return bins
 
