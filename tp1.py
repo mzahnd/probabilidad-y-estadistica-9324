@@ -18,6 +18,7 @@ COLUMNAS = [
 def printHeader(letra):
     print("Ejercicio " + letra)
     print("="*30)
+    print()
 
 
 def get_hist_bins(data, minimum=None, maximum=None, groups=None):
@@ -91,7 +92,6 @@ def get_points_frequency_polygon(bins_value, bins):
 def ejercicioA(df):
     """df: Datos del archivo"""
     printHeader('A')
-    print()
 
     # Datos
     pgc_raw = df["PGC"].tolist()
@@ -163,21 +163,47 @@ def ejercicioB(df):
 
     printHeader('B')
 
+    # Convertimos los datos de la columna PGC en una lista
     pgc = df["PGC"].tolist()
-    n_pgc = list(range(1, len(df) + 1))
 
-    ones = list()
-    for i in range(len(df)):
-        ones.append(1)
+    # Lista con el número de caso
+    n_pgc = df["N"].tolist()
+
+    # Lista de unos, para el gráfico constante vs valor
+    ones = np.ones(len(pgc))
 
     plot1 = plt.figure(1)
-    plt.plot(n_pgc, pgc, 'ro')
+    plt.plot(
+        n_pgc,              # Datos eje abscisas
+        pgc,                # Datos eje ordenadas
+        color='r',          # Color ('r' = red)
+        marker='o',         # Marcador ('o' significa "puntos" o "bolas")
+        linestyle='none',   # Estilo de línea (no tienen sentido en este caso)
+        fillstyle='full',   # Relleno del marcador
+        alpha=.3            # Transparencia interior del marcador
+    )
+    # Título ejes
+    plt.xlabel('Caso')
+    plt.ylabel('Valor')
+    # Título del gráfico
     plt.suptitle('PGC: Grafico valor vs caso')
 
     plot2 = plt.figure(2)
-    plt.plot(pgc, ones, 'ro')
+    plt.plot(
+        pgc,              # Datos eje abscisas
+        ones,                # Datos eje ordenadas
+        color='b',          # Color ('b' = blue)
+        marker='o',         # Marcador ('o' significa "puntos" o "bolas")
+        linestyle='none',   # Estilo de línea (no tienen sentido en este caso)
+        fillstyle='full',   # Relleno del marcador
+        alpha=.2            # Transparencia interior del marcador
+    )
+    # Título ejes
+    plt.xlabel('Valor')
+    # Título del gráfico
     plt.suptitle('PGC: Grafico constante vs valor')
 
+    # Muestro ambos gráficos
     plt.show()
 
 
