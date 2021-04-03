@@ -446,22 +446,35 @@ def ejercicioE(df):
 
 
 def ejercicioF(df):
-    """"---"""
+    """Item F
+
+    El índice de masa corporal IMC se define como la razón entre el peso en Kg
+    y el cuadrado de la altura en m. Represente el IMC de esta serie de datos y
+    represéntelo en un gráfico tipo serie temporal.
+    Calcule el porcentaje de personas para las cuales el IMC es mayor que 25 y
+    cuando es mayor que 30.
+
+    Args:
+        df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
+    """
 
     printHeader('F')
 
+    n_datos = df['N'].tolist()
     imc = df["IMC"].tolist()
 
-    # Datos con IMC mayores a 25 y 30
+    # Datos con IMC mayores a 25 y 30 kg/m^2
     above25p = 0
     above30p = 0
+
     for i in imc:
-        if i > 30:
+        if i > 30:          # 30 > 25 -> si n > 30, n > 25
             above30p += 1
             above25p += 1
         elif i > 25:
             above25p += 1
 
+    # Cada cantidad se divide por el largo de la lista con datos sobre el IMC
     above25p /= len(imc)
     above30p /= len(imc)
 
@@ -470,8 +483,23 @@ def ejercicioF(df):
     print("Personas con un IMC mayor a 30: "
           + str(round(above30p*100, 2)) + "%")
 
-    plt.plot(list(range(1, len(imc) + 1)), imc, 'ro')
+    # Gráfico
+    plt.plot(
+        n_datos,            # Eje de abscisas. Número de orden de cada dato.
+        imc,                # Eje de ordenadas.
+        color='b',          # Color ('r' = red)
+        marker='o',         # Marcador ('o' significa "puntos" o "bolas")
+        linestyle='none',   # Estilo de línea (no tienen sentido en este caso)
+        fillstyle='full',   # Relleno del marcador
+        alpha=.3            # Transparencia interior del marcador
+        )
+
+    # Título ejes
+    plt.xlabel('Caso')
+    plt.ylabel('Valor')
+    # Título del gráfico
     plt.suptitle('IMC: Grafico valor vs caso')
+
     plt.show()
 
 
@@ -658,9 +686,9 @@ if __name__ == "__main__":
     # print()
     # ejercicioD(datos)
     # print()
-    ejercicioE(datos)
+    # ejercicioE(datos)
     # print()
-    # ejercicioF(datos)
+    ejercicioF(datos)
     # print()
     # ejercicioG(datos)
     # print()
