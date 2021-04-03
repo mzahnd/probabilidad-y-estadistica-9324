@@ -175,7 +175,9 @@ def puntos_poligono_frecuencia(bins_val, bins):
 def diagrama_puntos(datos_abs, datos_ord, marker_color='blue',
                     marker_style='o', marker_alpha=0.3, marker_size=9,
                     titulo_ejes=['', ''], titulo_figura='', nombre_leyenda='',
-                    mostrar_leyenda=False, crear_figure=True):
+                    mostrar_leyenda=False, crear_figure=True,
+                    titulo_ejes_size=14, titulo_figura_size=16,
+                    leyenda_size=12):
     """Crear un diagrama con puntos.
 
     Crea una plt.figure e incrementa el índice (FIGURE_INDEX) automáticamente.
@@ -194,6 +196,12 @@ def diagrama_puntos(datos_abs, datos_ord, marker_color='blue',
         mostrar_leyenda (bool, optional): Mostrar leyenda. Por defecto: False
         crear_figure (bool, optional): Crea una plt.figure y aumenta el
         FIGURE_INDEX automáticamente. Por defecto: True
+        titulo_ejes_size (int, optional): Tamaño de fuente de los ejes.
+        Por defecto: 14
+        titulo_figura_size (int, optional): Tamaño de fuente del título.
+        Por defecto: 16
+        leyenda_size (int, optional): Tamaño de fuente del texto en la leyenda.
+        Por defecto: 12
     """
 
     if (crear_figure):
@@ -216,14 +224,17 @@ def diagrama_puntos(datos_abs, datos_ord, marker_color='blue',
 
     # Mostrar leyenda
     if (mostrar_leyenda):
-        plt.legend()
+        plt.legend(fontsize=leyenda_size)
 
     # Nombre ejes
-    plt.xlabel(titulo_ejes[0])
-    plt.ylabel(titulo_ejes[1])
+    plt.xlabel(titulo_ejes[0], fontsize=titulo_ejes_size)
+    plt.ylabel(titulo_ejes[1], fontsize=titulo_ejes_size)
 
     # Título gráfico
-    plt.suptitle(titulo_figura)
+    plt.suptitle(titulo_figura, fontsize=titulo_figura_size)
+
+    # No desperdiciemos espacio en la ventana del gráfico
+    plt.tight_layout()
 
 
 def estimarPGC(h, a, n, sexo):
@@ -505,7 +516,7 @@ def ejercicio_D(df):
              )
 
     # Muestro la leyenda con el nombre de cada gráfico
-    plt.legend()
+    plt.legend(fontsize=12)
 
 
 def ejercicio_E(df):
