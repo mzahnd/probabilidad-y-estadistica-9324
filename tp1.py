@@ -248,7 +248,8 @@ def ejercicioB(df):
         alpha=.2            # Transparencia interior del marcador
     )
     # Título ejes
-    plt.xlabel('Valor')
+    plt.ylabel('Valor')
+    plt.xlabel('Caso')
     # Título del gráfico
     plt.suptitle('PGC: Grafico constante vs valor')
 
@@ -492,7 +493,7 @@ def ejercicioF(df):
         linestyle='none',   # Estilo de línea (no tienen sentido en este caso)
         fillstyle='full',   # Relleno del marcador
         alpha=.3            # Transparencia interior del marcador
-        )
+    )
 
     # Título ejes
     plt.xlabel('Caso')
@@ -504,15 +505,34 @@ def ejercicioF(df):
 
 
 def ejercicioG(df):
-    """---"""
+    """Item G
+
+    Realice un diagrama de dispersión en donde represente PGC en función del
+    IMC.
+    ¿Puede extraer alguna conclusión?
+
+    Args:
+        df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
+    """
 
     printHeader('G')
     pgc = df["PGC"].tolist()
     imc = df["IMC"].tolist()
 
-    plt.plot(imc, pgc, 'ro')
+    plt.plot(
+        imc,                # Datos eje abscisas
+        pgc,                # Datos eje ordenadas
+        color='b',          # Color ('b' = blue)
+        marker='o',         # Marcador ('o' significa "puntos" o "bolas")
+        linestyle='none',   # Estilo de línea (no tienen sentido en este caso)
+        fillstyle='full',   # Relleno del marcador
+        alpha=.2            # Transparencia interior del marcador
+    )
+
+    # Título ejes
     plt.xlabel("IMC")
     plt.ylabel("PGC")
+
     plt.show()
 
 
@@ -688,9 +708,9 @@ if __name__ == "__main__":
     # print()
     # ejercicioE(datos)
     # print()
-    ejercicioF(datos)
+    # ejercicioF(datos)
     # print()
-    # ejercicioG(datos)
+    ejercicioG(datos)
     # print()
     # ejercicioH_I(datos)
     # print()
