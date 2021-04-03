@@ -89,8 +89,56 @@ def get_points_frequency_polygon(bins_value, bins):
     return points_x, points_y
 
 
+def valuesAbove(data, limit):
+    """Obtiene una lista con los valores mayores al límite.
+
+    Args:
+        data (list): Lista con todos los datos.
+        limit (same as list data type): Valor sobre el cual se buscan
+                                        los datos mayores.
+
+    Returns:
+        list: Valores en _data_ mayores a _limit_
+    """
+
+    res = list()
+    for i in data:
+        if i > limit:
+            res.append(i)
+
+    return res
+
+
+def valuesBelow(data, limit):
+    """Obtiene una lista con los valores menores al límite.
+
+    Args:
+        data (list): Lista con todos los datos.
+        limit (same as list data type): Valor sobre el cual se buscan
+                                        los datos menores.
+
+    Returns:
+        list: Valores en _data_ menores a _limit_
+    """
+
+    res = list()
+    for i in data:
+        if i < limit:
+            res.append(i)
+
+    return res
+
+
 def ejercicioA(df):
-    """df: Datos del archivo"""
+    """Item A
+
+    Obtenga la media, mediana, dispersión, máximo, mínimo, primer y tercer
+    cuartil de PGC.
+    Muestre una tabla de estos parámetros redondeados en dos decimales.
+
+    Args:
+        df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
+    """
     printHeader('A')
 
     # Datos
@@ -159,7 +207,14 @@ def ejercicioA(df):
 
 
 def ejercicioB(df):
-    """---"""
+    """Item B
+
+    Realice el diagrama tipo serie temporal (valor vs. caso) y
+    el tipo constante vs variable.
+
+    Args:
+        df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
+    """
 
     printHeader('B')
 
@@ -207,51 +262,106 @@ def ejercicioB(df):
     plt.show()
 
 
-def valuesAbove(data, limit):
-    res = list()
-    for i in data:
-        if i > limit:
-            res.append(i)
-
-    return res
-
-
-def valuesBelow(data, limit):
-    res = list()
-    for i in data:
-        if i < limit:
-            res.append(i)
-
-    return res
-
-
 def ejercicioC(df):
-    """---"""
+    """Item C
+
+    Realice un diagrama boxplot o de caja extraiga alguna conclusión.
+    ¿Existen mediciones fuera de lo común o outliers? Haga algún
+    comentario sobre los casos outliers. Calcule el porcentaje de
+    datos de ese tipo.
+
+    Args:
+        df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
+    """
 
     printHeader('C')
 
     pgc = df["PGC"].tolist()
 
-    # Calculo outliers
+    # Realizamos el gráfico (aunque lo mostramos recién al final de la función)
+    boxplot_ret = plt.boxplot(
+        pgc,                        # Datos
+        widths=0.5,                 # Box más ancha
+        flierprops=dict(            # Personalizamos los marcadores de outliers
+            marker='o',             # Marcador tipo O (círculo)
+            markersize=12,          # Tamaño del marcador
+            markerfacecolor='b',    # Color del marcador
+            fillstyle='full',       # Relleno del marcador
+            alpha=.4                # Transparencia interior del marcador
+            )
+    )
+    plt.suptitle('PGC: Boxplot')
+
+    # Calculo outliers manualmente (nobleza obliga).
+    # Más abajo se deja comentado cómo obtenerlos directamente a partir del
+    # gráfico.
+
+    # Primero ordeno los datos para facilitar el algoritmo que encuentra
+    # los bigotes.
+    pgc.sort()
+
+    # Obtengo los cuartiles (ver ítem A).
     pgc_quantiles = statistics.quantiles(pgc, n=4)
 
-    # iqr = q3 - q1
+    # Rango intercuartílico: iqr = q3 - q1
     iqr = pgc_quantiles[2] - pgc_quantiles[0]
-    # q1 - 1.5 iqr  y  q3 + 1.5 iqr
 
-    tukey_limits = [pgc_quantiles[0] - 1.5 * iqr, pgc_quantiles[0] + 1.5 * iqr]
+    # Límites de Tukey:
+    #                   Límite inferior: El menor valor previo a  q1 - 1.5 iqr
+    #                   Límite superior: El menor valor previo a  q3 + 1.5 iqr
+    lims_tuckey = [pgc_quantiles[0] - 1.5 * iqr, pgc_quantiles[2] + 1.5 * iqr]
 
-    outliers_below = valuesBelow(pgc, tukey_limits[0])  # Outliers abajo
-    outliers_above = valuesAbove(pgc, tukey_limits[1])  # Outliers arriba
+    # Bigotes
+    # Todos los datos son mayores que la menor de las mediciones,
+    # por lo que min(pgc)-1 es un absurdo.
+    bigote_inf = bigote_sup = pgc[0] - 1
+    # Busco el primer valor superior del límite inferior de Tuckey
+    # y el primer valor menor al límite superior de Tuckey.
+    for valor in pgc:
+        if bigote_inf < pgc[0]-1 and valor > lims_tuckey[0]:
+            bigote_inf = valor
+        if valor < lims_tuckey[1] and bigote_sup < valor:
+            bigote_sup = valor
 
-    total_outliers = len(outliers_above) + len(outliers_below)
-    percent_outliers = total_outliers / len(pgc)
+    # Outliers abajo
+    outliers_abajo = valuesBelow(pgc, bigote_inf)
+    # Outliers arriba
+    outliers_arriba = valuesAbove(pgc, bigote_sup)
 
+    # La proporción de outliers es la razón entre el total de los mismos
+    # (la cantidad de outliers por encima + la cantidad de outliers por debajo)
+    # y la cantidad de datos obtenidos.
+    proporcion_outliers = (len(outliers_arriba) + len(outliers_abajo)) \
+        / len(pgc)
+
+    # Imprimimos el porcentaje redondeando a 2 decimales.
     print("Porcentaje de outliers: " +
-          str(round(percent_outliers * 100, 2)) + "%")
+          str(round(proporcion_outliers * 100, 2)) + "%")
 
-    plt.boxplot(pgc)
-    plt.suptitle('PGC: Boxplot')
+    # Obtención de los outliers a partir de los datos utilizados para graficar
+    #
+    # Esta parte se encuentra comentada para no imprimir dos veces el mismo
+    # resultado.
+    #
+    # De la documentación de matplotlib, sabemos que boxplot() devuelve un
+    # diccionario con los componentes utilizados para la realización del
+    # gráfico, entre los cuales se encuentra una lista denominada 'fliers',
+    # que contiene los outliers superiores e inferiores.
+    #
+    # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.boxplot.html
+
+    # Obteniendo la lista con dichos datos
+    fliers = boxplot_ret['fliers'][0].get_data()[1]
+
+    # Simplemente se divide la cantidad de outliers por la cantidad de
+    # mediciones.
+    proporcion_outliers = len(fliers) / len(pgc)
+
+    # E imprimimos el porcentaje redondeando a 2 decimales.
+    print("Porcentaje de outliers: " +
+          str(round(proporcion_outliers * 100, 2)) + "%")
+
+    # Mostramos el gráfico
     plt.show()
 
 
@@ -507,12 +617,13 @@ if __name__ == "__main__":
     datos = pd.read_csv('grasacorp.txt', delimiter='\t', header=None)
     datos.columns = COLUMNAS
 
-    # ejercicioA(datos)
-    # print() # Línea en blanco
-    ejercicioB(datos)
     print()
-    # ejercicioC(datos)
+    ejercicioA(datos)
+    print()  # Línea en blanco
+    # ejercicioB(datos)
     # print()
+    ejercicioC(datos)
+    print()
     # ejercicioD(datos)
     # print()
     # ejercicioE(datos)
