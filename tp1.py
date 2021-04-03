@@ -21,74 +21,6 @@ def printHeader(letra):
     print()
 
 
-def get_hist_bins(data, minimum=None, maximum=None, groups=None):
-    """..."""
-    if not minimum:
-        minimum = math.floor(min(data))
-    if not maximum:
-        maximum = math.ceil(max(data))
-    if not groups:
-        groups = round(math.log2(len(data)))
-
-    bins = list()
-    for current in range(groups):
-        bins.append(minimum + current*groups)
-
-    bins.append(maximum)
-
-    return bins
-
-
-def get_points_frequency_polygon(bins_value, bins):
-    """..."""
-    n_bins = len(bins)  # Number of bins = length of array
-    mean_half_dist_between_bins = 0
-    points_x = [0.0]
-    points_y = [0.0]  # bins_value  with coords 0.0 at the beggining and end
-    for value in bins_value:
-        points_y.append(value)
-    points_y.append(0.0)
-
-    # Start from the second element
-    for index in range(n_bins-1):
-        mean_half_dist_between_bins += (bins[index+1] - bins[index]) / 2
-        points_x.append((bins[index+1] + bins[index]) / 2)
-
-    # The first point is extrapolated based on the average of distance between
-    # beans used in the previous points.
-    mean_half_dist_between_bins /= n_bins-1
-    points_x[0] = bins[0] - mean_half_dist_between_bins
-    # Same idea por the last point
-    points_x.append(bins[-1] + mean_half_dist_between_bins)
-
-    print("X axis:", points_x)
-    print("Y axis:", points_y)
-
-    for point in points_x:
-        point = float(point)
-    for point in points_y:
-        point = float(point)
-
-    # verts = list(zip(points_x, points_y))
-    # codes = []
-    # for _ in verts:
-    #     codes.append(Path.LINETO)
-    # codes[0] = Path.MOVETO
-
-    # print(verts)
-    # print(codes)
-    #
-    # path = Path(verts, codes)
-    #
-    # patch = patches.PathPatch(path, facecolor='none', lw=1)
-    # ax.add_patch(patch)
-    # ax.set_xlim(0, 50)
-    # ax.set_ylim(0, 30)
-    # # plt.show()
-
-    return points_x, points_y
-
-
 def valuesAbove(data, limit):
     """Obtiene una lista con los valores mayores al límite.
 
@@ -127,6 +59,68 @@ def valuesBelow(data, limit):
             res.append(i)
 
     return res
+
+
+def libraKilogramo(pounds):
+    """---"""
+
+    return pounds*0.45359237
+
+
+def pulgadasCentimetro(inches):
+    """"---"""
+
+    return inches*2.54
+
+
+def puntos_poligono_frecuencia(bins_val, bins):
+    """[summary]
+
+    Esta función supone que los intervalos de clase son de igual amplitud.
+
+    Args:
+        bins_val (list): Altura de los rectángulos del historigrama,
+                         devueltos por la función hist() de matplotlib.
+        bins (list): En español, rectángulos, son los intervalos de clase
+                     devueltos por la función hist() de matplotlib.
+
+    Returns:
+        float list, float list:
+                    puntos del eje de abscisas, puntos del eje de ordenadas
+    """
+
+    # Cantidad de rectángulos (número de clases)
+    n_bins = len(bins)
+    # Ancho de los intervalos de clase.
+    ancho_bins = (bins[0] + bins[1]) / 2
+
+    # Puntos en X e Y.
+    puntos_x = [0.0]            # Se modificará el 0.0 por la extrapolación
+    puntos_y = [0.0]            # Un 0.0 como primer ordenada
+
+    # Todas las alturas de los rectángulos son coordenadas en el
+    # eje de ordenadas, agregando como coordenada extra el 0 al comienzo
+    # y final de la lista (para poder crear luego el polígono de frecuencias).
+    for value in bins_val:
+        puntos_y.append(value)
+    puntos_y.append(0.0)        # Un 0.0 al final de la lista
+
+    # Se almacena la coordenada en X del punto medio de cada rectángulo.
+    for index in range(n_bins-1):
+        puntos_x.append((bins[index+1] + bins[index]) / 2)
+
+    # El primer y último punto (con ordenada 0) son extrapolados en X tomando
+    # como referencia la distancia media entre los rectángulos.
+    puntos_x[0] = bins[0] - ancho_bins
+    puntos_x.append(bins[-1] + ancho_bins)
+
+    # Se convierten los datos a float para que matplotlib pueda utilizarlos.
+    for point in puntos_x:
+        point = float(point)
+    for point in puntos_y:
+        point = float(point)
+
+    return puntos_x, puntos_y
 
 
 def ejercicioA(df):
@@ -288,7 +282,7 @@ def ejercicioC(df):
             markerfacecolor='b',    # Color del marcador
             fillstyle='full',       # Relleno del marcador
             alpha=.4                # Transparencia interior del marcador
-            )
+        )
     )
     plt.suptitle('PGC: Boxplot')
 
@@ -366,50 +360,88 @@ def ejercicioC(df):
 
 
 def ejercicioD(df):
+    """Item D
+
+    Realice el histograma y ensaye para elegir el número de intervalos.
+    Superponga el polígono de frecuencias sobre el histograma.
+
+    Args:
+        df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
+    """
+
     printHeader('D')
 
     pgc = df["PGC"].tolist()
-    pgc.sort()
 
-    bins = get_hist_bins(pgc, minimum=15, maximum=40, groups=5)
-
+    # Para este ítem se superponen dos gráficos.
     fig, ax = plt.subplots()
-    n, bins2, patches = plt.hist(pgc, bins=bins, density=False, color="grey")
 
-    freq_pol_x, freq_pol_y = get_points_frequency_polygon(n, bins)
+    # Comienzo creando el histograma
+    n, bins, patches = plt.hist(
+        pgc,                                  # Datos
+        bins=math.ceil(math.log2(len(pgc))),  # Número de intervalos de clase
+        color='royalblue',                    # Color del historigrama
+        edgecolor='black',                    # Color del borde de los rect.
+        linewidth=1,                          # Grosor del borde de los rect.
+        label='Histograma'
+    )
 
-    ax.plot(freq_pol_x, freq_pol_y, linestyle='--', lw=2, color="blue")
+    # Se obtienen las coordenadas de los puntos con los cuales
+    # el polígono de frecuencias es graficado.
+    freq_pol_x, freq_pol_y = puntos_poligono_frecuencia(n,
+                                                        bins
+                                                        )
+
+    # Graficamos el polígono de frecuencias.
+    ax.plot(freq_pol_x,                     # Eje abscisas
+            freq_pol_y,                     # Eje ordenadas
+            linestyle='--',                 # Estilo de línea
+            lw=2,                           # Grosor de línea
+            color='orange',                 # Color de línea
+            marker='h',                     # Marcador ('h' = hexágono)
+            markersize=8,                   # Tamaño del marcador
+            label='Polígono de frecuencias'
+            )
+
+    # Muestro la leyenda con el nombre de cada gráfico
+    plt.legend()
+    # Muestra el gráfico
     plt.show()
 
 
-def poundToKilogram(pounds):
-    """---"""
-
-    return pounds*0.45359237
-
-
-def inchesToCentimeters(inches):
-    """"---"""
-
-    return inches*2.54
-
-
 def ejercicioE(df):
-    """---"""
+    """Item E
+
+    Realice un diagrama de dispersión en donde represente el peso en Kg en
+    función de la altura en cm. Hay dos personas cuyo par de datos (altura,
+    peso) resultan alejados de la nube de datos.
+    Haga algún comentario sobre estos dos casos.
+
+    Args:
+        df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
+    """
 
     printHeader('E')
     peso_lb = df["Peso"].tolist()
     altura_in = df["Altura"].tolist()
 
     # Convierto los datos de lb a kg y pulgadas a cm, según corresponda
-    # Como cada medida es convertida y guardada en el índice, se mantiene
-    # la relación entre los datos
-    peso_kg = [poundToKilogram(p) for p in peso_lb]
-    altura_cm = [inchesToCentimeters(a) for a in altura_in]
+    # Como cada medida es convertida y guardada en el mismo índice, se mantiene
+    # la relación entre los datos de ambas listas.
+    peso_kg = [libraKilogramo(p) for p in peso_lb]
+    altura_cm = [pulgadasCentimetro(a) for a in altura_in]
 
-    plt.plot(altura_cm, peso_kg, 'bo')
+    plt.plot(
+        altura_cm,
+        peso_kg,
+        'bo'
+    )
+
+    # Nombre de los ejes
     plt.xlabel("Altura [cm]")
     plt.ylabel("Peso [kg]")
+
+    # Muestra el gráfico
     plt.show()
 
 
@@ -523,7 +555,7 @@ def ejercicioK(df):
     imc = df["IMC"].tolist()
     peso_lb = df["Peso"]
 
-    peso_kg = [(n, poundToKilogram(p)) for n, p in peso_lb.iteritems()]
+    peso_kg = [(n, libraKilogramo(p)) for n, p in peso_lb.iteritems()]
 
     peso_under_70 = list()
     peso_overeq_70 = list()
@@ -584,7 +616,7 @@ def ejercicioM(df):
     abdomen = df["Abdomen"].tolist()
     cuello = df["Cuello"].tolist()
 
-    altura_cm = [inchesToCentimeters(a) for a in altura_in]
+    altura_cm = [pulgadasCentimetro(a) for a in altura_in]
 
     # Desconozco el sexo de los individuos. Estimo el PGC con ambos sexos
     pgc_est_hombres = list()
@@ -622,11 +654,11 @@ if __name__ == "__main__":
     print()  # Línea en blanco
     # ejercicioB(datos)
     # print()
-    ejercicioC(datos)
-    print()
+    # ejercicioC(datos)
+    # print()
     # ejercicioD(datos)
     # print()
-    # ejercicioE(datos)
+    ejercicioE(datos)
     # print()
     # ejercicioF(datos)
     # print()
