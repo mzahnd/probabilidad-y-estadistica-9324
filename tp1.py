@@ -1,9 +1,30 @@
+"""
+
+Fuentes:
+    Documentación de matplotlib
+    https://matplotlib.org/stable/tutorials/index.html
+    https://matplotlib.org/stable/gallery/lines_bars_and_markers/marker_reference.html
+    https://matplotlib.org/stable/gallery/color/named_colors.html
+
+    Documentación de tabulate
+    https://pypi.org/project/tabulate/
+
+    Documentación del paquete statistics
+    https://docs.python.org/3/library/statistics.html
+
+    Ejemplos de Pandas
+    https://www.geeksforgeeks.org/loop-or-iterate-over-all-or-certain-columns-of-a-dataframe-in-python-pandas/
+
+    RealPython
+    https://realpython.com/numpy-scipy-pandas-correlation-python/
+"""
+import copy
 import math
 import statistics
-from tabulate import tabulate
-from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
+from tabulate import tabulate
+from matplotlib import pyplot as plt
 
 
 # Columnas del archivo con datos
@@ -14,11 +35,37 @@ COLUMNAS = [
     'Muñeca'
 ]
 
+# Índice para crear las figuras
+FIGURE_INDEX = 0
+
 
 def printHeader(letra):
-    print("Ejercicio " + letra)
+    """Imprime un encabezado para el ejercicio con texto: "Ejercicio L".
+
+    Args:
+        letra (str): Letra del o los ejercicios,
+    """
+    if (len(letra) > 1):
+        print("Ejercicios " + letra)
+    else:
+        print("Ejercicio " + letra)
     print("="*30)
     print()
+
+
+def printTable(encabezado, datos):
+    """Imprime una tabla utilizando tabulate, con dos decimales.
+
+    Args:
+        encabezado (list): Títulos para los encabezados
+        datos (list / dict): Contenido de la tabla
+    """
+    print(
+        tabulate(datos,                     # Datos para completar la tabla
+                 headers=encabezado,        # Encabezados de la tabla
+                 tablefmt='presto',         # Hacemos que se vea más bonita
+                 floatfmt=".2f")            # Redondeo a 2 decimales
+    )
 
 
 def valuesAbove(data, limit):
@@ -62,19 +109,21 @@ def valuesBelow(data, limit):
 
 
 def libraKilogramo(pounds):
-    """---"""
+    """Convierte de libras a kg.
+    """
 
     return pounds*0.45359237
 
 
-def pulgadasCentimetro(inches):
-    """"---"""
+def pulgadaCentimetro(inches):
+    """Convierte de pulgadas a centímetros.
+    """
 
     return inches*2.54
 
 
 def puntos_poligono_frecuencia(bins_val, bins):
-    """[summary]
+    """Calcula los puntos X e Y para crear el polígono de frecuencias.
 
     Esta función supone que los intervalos de clase son de igual amplitud.
 
@@ -123,7 +172,83 @@ def puntos_poligono_frecuencia(bins_val, bins):
     return puntos_x, puntos_y
 
 
-def ejercicioA(df):
+def diagrama_puntos(datos_abs, datos_ord, marker_color='blue',
+                    marker_style='o', marker_alpha=0.3, marker_size=9,
+                    titulo_ejes=['', ''], titulo_figura='', nombre_leyenda='',
+                    mostrar_leyenda=False, crear_figure=True):
+    """Crear un diagrama con puntos.
+
+    Crea una plt.figure e incrementa el índice (FIGURE_INDEX) automáticamente.
+
+    Args:
+        datos_abs (list): Datos para el eje de abscisas
+        datos_ord (list): Datos para el eje de ordenadas
+        marker_color (str, optional): Color del marcador. Por defecto: 'blue'.
+        marker_style (str, optional): Estilo del marcador. Por defecto: 'o'.
+        marker_alpha (float, optional): Transparencia del marcador.
+        Por defecto: 0.3.
+        titulo_ejes (list, optional): Título para el eje X e Y. Por defecto: ''
+        titulo_figura (str, optional): Título del gráfico. Por defecto: ''
+        nombre_leyenda (str, optional): Nombre para la leyenda. Por defecto: ''
+        marker_size (int, optional): Tamaño del marcador. Por defecto: 9
+        mostrar_leyenda (bool, optional): Mostrar leyenda. Por defecto: False
+        crear_figure (bool, optional): Crea una plt.figure y aumenta el
+        FIGURE_INDEX automáticamente. Por defecto: True
+    """
+
+    if (crear_figure):
+        global FIGURE_INDEX
+        FIGURE_INDEX += 1
+
+        fig = plt.figure(FIGURE_INDEX)
+
+    plt.plot(
+        datos_abs,                  # Datos eje abscisas
+        datos_ord,                  # Datos eje ordenadas
+        color=marker_color,         # Color
+        marker=marker_style,        # Marcador
+        markersize=marker_size,     # Tamaño del marcador
+        alpha=marker_alpha,         # Transparencia interior del marcador
+        fillstyle='full',           # Relleno del marcador
+        linestyle='none',           # Estilo de línea (no tiene sentido)
+        label=nombre_leyenda,
+    )
+
+    # Mostrar leyenda
+    if (mostrar_leyenda):
+        plt.legend()
+
+    # Nombre ejes
+    plt.xlabel(titulo_ejes[0])
+    plt.ylabel(titulo_ejes[1])
+
+    # Título gráfico
+    plt.suptitle(titulo_figura)
+
+
+def estimarPGC(h, a, n, sexo):
+    """Estimación del PGC utilizando la fórmula del item M.
+
+    Args:
+        h (float): Altura en centímetros
+        a (float): Circunferencia abdominal en centímetros
+        n (float): Circunferencia del cuello en centímetros
+        sexo (string): 'M': Masculino ; 'F': Femenino
+
+    Returns:
+        float: PGC estimado
+    """
+
+    est = 0
+    if sexo == 'M':
+        est = 10.1 - 0.239 * h + 0.8 * a - 0.5 * n
+    elif sexo == 'F':
+        est = 19.2 - 0.239 * h + 0.8 * a - 0.5 * n
+
+    return est
+
+
+def ejercicio_A(df):
     """Item A
 
     Obtenga la media, mediana, dispersión, máximo, mínimo, primer y tercer
@@ -190,15 +315,10 @@ def ejercicioA(df):
         'Parámetro', 'Valor'
     ]
 
-    print(
-        tabulate(pgc_parametros.items(),    # Datos calculados previamente
-                 headers=encabezado,        # Encabezados de la tabla
-                 tablefmt='presto',         # Hacemos que se vea más bonita
-                 floatfmt=".2f")            # Redondeo a 2 decimales
-    )
+    printTable(encabezado, pgc_parametros.items())
 
 
-def ejercicioB(df):
+def ejercicio_B(df):
     """Item B
 
     Realice el diagrama tipo serie temporal (valor vs. caso) y
@@ -219,43 +339,24 @@ def ejercicioB(df):
     # Lista de unos, para el gráfico constante vs valor
     ones = np.ones(len(pgc))
 
-    plot1 = plt.figure(1)
-    plt.plot(
-        n_pgc,              # Datos eje abscisas
-        pgc,                # Datos eje ordenadas
-        color='r',          # Color ('r' = red)
-        marker='o',         # Marcador ('o' significa "puntos" o "bolas")
-        linestyle='none',   # Estilo de línea (no tienen sentido en este caso)
-        fillstyle='full',   # Relleno del marcador
-        alpha=.3            # Transparencia interior del marcador
+    # Valor vs caso
+    diagrama_puntos(
+        n_pgc,
+        pgc,
+        titulo_figura='PGC: Grafico valor vs caso',
+        titulo_ejes=['Caso', 'Valor']
     )
-    # Título ejes
-    plt.xlabel('Caso')
-    plt.ylabel('Valor')
-    # Título del gráfico
-    plt.suptitle('PGC: Grafico valor vs caso')
 
-    plot2 = plt.figure(2)
-    plt.plot(
-        pgc,              # Datos eje abscisas
-        ones,                # Datos eje ordenadas
-        color='b',          # Color ('b' = blue)
-        marker='o',         # Marcador ('o' significa "puntos" o "bolas")
-        linestyle='none',   # Estilo de línea (no tienen sentido en este caso)
-        fillstyle='full',   # Relleno del marcador
-        alpha=.2            # Transparencia interior del marcador
+    # Valor  vs cte
+    diagrama_puntos(
+        pgc,
+        ones,
+        titulo_figura='PGC: Grafico constante vs valor',
+        titulo_ejes=['Valor', 'Constante']
     )
-    # Título ejes
-    plt.ylabel('Valor')
-    plt.xlabel('Caso')
-    # Título del gráfico
-    plt.suptitle('PGC: Grafico constante vs valor')
-
-    # Muestro ambos gráficos
-    plt.show()
 
 
-def ejercicioC(df):
+def ejercicio_C(df):
     """Item C
 
     Realice un diagrama boxplot o de caja extraiga alguna conclusión.
@@ -272,6 +373,9 @@ def ejercicioC(df):
     pgc = df["PGC"].tolist()
 
     # Realizamos el gráfico (aunque lo mostramos recién al final de la función)
+    global FIGURE_INDEX
+    FIGURE_INDEX += 1
+    plot_C = plt.figure(FIGURE_INDEX)
     boxplot_ret = plt.boxplot(
         pgc,                        # Datos
         widths=0.5,                 # Box más ancha
@@ -354,11 +458,8 @@ def ejercicioC(df):
     print("Porcentaje de outliers: " +
           str(round(proporcion_outliers * 100, 2)) + "%")
 
-    # Mostramos el gráfico
-    plt.show()
 
-
-def ejercicioD(df):
+def ejercicio_D(df):
     """Item D
 
     Realice el histograma y ensaye para elegir el número de intervalos.
@@ -372,8 +473,9 @@ def ejercicioD(df):
 
     pgc = df["PGC"].tolist()
 
-    # Para este ítem se superponen dos gráficos.
-    fig, ax = plt.subplots()
+    global FIGURE_INDEX
+    FIGURE_INDEX += 1
+    plot_D = plt.figure(FIGURE_INDEX)
 
     # Comienzo creando el histograma
     n, bins, patches = plt.hist(
@@ -392,23 +494,21 @@ def ejercicioD(df):
                                                         )
 
     # Graficamos el polígono de frecuencias.
-    ax.plot(freq_pol_x,                     # Eje abscisas
-            freq_pol_y,                     # Eje ordenadas
-            linestyle='--',                 # Estilo de línea
-            lw=2,                           # Grosor de línea
-            color='orange',                 # Color de línea
-            marker='h',                     # Marcador ('h' = hexágono)
-            markersize=8,                   # Tamaño del marcador
-            label='Polígono de frecuencias'
-            )
+    plt.plot(freq_pol_x,                     # Eje abscisas
+             freq_pol_y,                     # Eje ordenadas
+             linestyle='--',                 # Estilo de línea
+             lw=2,                           # Grosor de línea
+             color='orange',                 # Color de línea
+             marker='h',                     # Marcador ('h' = hexágono)
+             markersize=8,                   # Tamaño del marcador
+             label='Polígono de frecuencias'
+             )
 
     # Muestro la leyenda con el nombre de cada gráfico
     plt.legend()
-    # Muestra el gráfico
-    plt.show()
 
 
-def ejercicioE(df):
+def ejercicio_E(df):
     """Item E
 
     Realice un diagrama de dispersión en donde represente el peso en Kg en
@@ -421,6 +521,7 @@ def ejercicioE(df):
     """
 
     printHeader('E')
+
     peso_lb = df["Peso"].tolist()
     altura_in = df["Altura"].tolist()
 
@@ -428,23 +529,18 @@ def ejercicioE(df):
     # Como cada medida es convertida y guardada en el mismo índice, se mantiene
     # la relación entre los datos de ambas listas.
     peso_kg = [libraKilogramo(p) for p in peso_lb]
-    altura_cm = [pulgadasCentimetro(a) for a in altura_in]
+    altura_cm = [pulgadaCentimetro(a) for a in altura_in]
 
-    plt.plot(
+    # Gráfico
+    diagrama_puntos(
         altura_cm,
         peso_kg,
-        'bo'
+        titulo_figura='Relación altura-peso',
+        titulo_ejes=['Altura [cm]', 'Peso [kg]'],
     )
 
-    # Nombre de los ejes
-    plt.xlabel("Altura [cm]")
-    plt.ylabel("Peso [kg]")
 
-    # Muestra el gráfico
-    plt.show()
-
-
-def ejercicioF(df):
+def ejercicio_F(df):
     """Item F
 
     El índice de masa corporal IMC se define como la razón entre el peso en Kg
@@ -483,26 +579,15 @@ def ejercicioF(df):
           + str(round(above30p*100, 2)) + "%")
 
     # Gráfico
-    plt.plot(
-        n_datos,            # Eje de abscisas. Número de orden de cada dato.
-        imc,                # Eje de ordenadas.
-        color='b',          # Color ('r' = red)
-        marker='o',         # Marcador ('o' significa "puntos" o "bolas")
-        linestyle='none',   # Estilo de línea (no tienen sentido en este caso)
-        fillstyle='full',   # Relleno del marcador
-        alpha=.3            # Transparencia interior del marcador
+    diagrama_puntos(
+        n_datos,
+        imc,
+        titulo_figura='IMC: Gráfico valor vs caso',
+        titulo_ejes=['Caso', 'Valor'],
     )
 
-    # Título ejes
-    plt.xlabel('Caso')
-    plt.ylabel('Valor')
-    # Título del gráfico
-    plt.suptitle('IMC: Grafico valor vs caso')
 
-    plt.show()
-
-
-def ejercicioG(df):
+def ejercicio_G(df):
     """Item G
 
     Realice un diagrama de dispersión en donde represente PGC en función del
@@ -517,24 +602,16 @@ def ejercicioG(df):
     pgc = df["PGC"].tolist()
     imc = df["IMC"].tolist()
 
-    plt.plot(
-        imc,                # Datos eje abscisas
-        pgc,                # Datos eje ordenadas
-        color='b',          # Color ('b' = blue)
-        marker='o',         # Marcador ('o' significa "puntos" o "bolas")
-        linestyle='none',   # Estilo de línea (no tienen sentido en este caso)
-        fillstyle='full',   # Relleno del marcador
-        alpha=.2            # Transparencia interior del marcador
+    # Gráfico
+    diagrama_puntos(
+        imc,
+        pgc,
+        titulo_figura='Diagrama de dispersión',
+        titulo_ejes=['IMC', 'PGC'],
     )
 
-    # Título ejes
-    plt.xlabel("IMC")
-    plt.ylabel("PGC")
 
-    plt.show()
-
-
-def ejercicioH_I(df):
+def ejercicio_H_I(df):
     """Items H e I
 
     H)
@@ -561,10 +638,10 @@ def ejercicioH_I(df):
         df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
 
     Returns:
-        string: Nombre de la columna con la variable de menor p respecto del PGC.
+        string: Nombre de la columna con la variable de menor p respecto de PGC
     """
 
-    printHeader('H | I')
+    printHeader('H e I')
     pgc = df["PGC"]
 
     corr_coef = dict()
@@ -581,18 +658,11 @@ def ejercicioH_I(df):
         # Guardo el valor de p
         corr_coef[nombreColumna] = p
 
-        # print("Correlación entre PGC y " + nombreColumna + ":  "
-        #       + str(round(p, 2)))
-
+    # Imrpimimos la tabla
     encabezado = [
         'Correlación del PGC', 'p'
     ]
-    print(
-        tabulate(corr_coef.items(),    # Datos calculados previamente
-                 headers=encabezado,        # Encabezados de la tabla
-                 tablefmt='presto',         # Hacemos que se vea más bonita
-                 floatfmt=".2f")            # Redondeo a 2 decimales
-    )
+    printTable(encabezado, corr_coef.items())
 
     # Máximo p, despreciando la densidad
     p_maximo = ['', 0]
@@ -605,7 +675,7 @@ def ejercicioH_I(df):
             p_maximo[0] = nombre
             p_maximo[1] = abs(p)
 
-    print()  # Línea en blanco para separar de la tabla
+    print()  # Línea en blanco para separar de la tabla del título
     print(
         "El 'p' máximo se obtiene por medio del " + p_maximo[0].lower()
         + ", y su valor absoluto es: "
@@ -613,26 +683,17 @@ def ejercicioH_I(df):
     )
 
     # Diagrama de dispersión en función de p_maximo[0] (variable con mayor p).
-    plt.plot(
-        df[p_maximo[0]],    # Datos eje abscisas
-        pgc,                # Datos eje ordenadas
-        color='b',          # Color ('b' = blue)
-        marker='o',         # Marcador ('o' significa "puntos" o "bolas")
-        linestyle='none',   # Estilo de línea (no tienen sentido en este caso)
-        fillstyle='full',   # Relleno del marcador
-        alpha=.3            # Transparencia interior del marcador
+    diagrama_puntos(
+        df[p_maximo[0]],
+        pgc,
+        titulo_figura='Diagrama de dispersión',
+        titulo_ejes=[p_maximo[0] + ' [cm]', 'PGC'],
     )
-
-    # Título ejes
-    plt.xlabel(p_maximo[0] + ' [cm]')
-    plt.ylabel('PGC')
-
-    plt.show()
 
     return p_maximo[0]
 
 
-def ejercicioJ(df, columna):
+def ejercicio_J(df, columna):
     """Items J
 
     Estimen PGC para los miembros del grupo que presente este trabajo usando
@@ -660,7 +721,7 @@ def ejercicioJ(df, columna):
     var_menor_p = df[columna].tolist()
 
     # TODO: Conseguir datos reales
-    mediciones_alumnos = [123, 423, 653, 954, 135]
+    mediciones_alumnos = [84, 423, 653, 954, 135]
 
     # Las funciones polyval y polyfit de Numpy son el reemplazo de las
     # funciones homónimas en Octave/Matlab.
@@ -669,83 +730,157 @@ def ejercicioJ(df, columna):
         mediciones_alumnos
     )
 
-    print(pgc_alumnos)
+    # Para la tabla
+    # Una lista con cada elemento conteniendo otra lista de forma
+    # [i, pgc] , donde i es un número natural.
+    pgc_alumnos_tabla = list()
+    for i in range(len(mediciones_alumnos)):
+        pgc_alumnos_tabla.append([i+1, pgc_alumnos[i]])
+
+    encabezado = ['Alumno', 'PGC estimado']
+    printTable(encabezado, pgc_alumnos_tabla)
 
 
-def ejercicioK(df):
-    """---"""
+def ejercicio_K_L(df, columna):
+    """Items K y L
 
-    printHeader('K | L')
+    K)
+    Divida la población en dos grupos de acuerdo con el peso entre los que
+    pesan menos de 70 Kg y los de peso igual o mayor. En cada grupo determine
+    el porcentaje de los que tienen IMC mayor que 25.
 
+    L)
+    Realice dos diagramas de dispersión superpuestos donde se represente PGC
+    en función de la variable elegida en el ítem i para los dos grupos del
+    ítem anterior. Represente cada serie con un símbolo diferente. Haga algún
+    comentario de lo que observe.
+
+    Args:
+        df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
+        columna (string): Encabezado de la columna con la variable de mayor
+                          correlación con el PGC.
+    """
+
+    printHeader('K y L')
+
+    # Datos
     pgc_all = df["PGC"].tolist()
-    abdomen_all = df["Abdomen"].tolist()
+    variable_elegida_all = df[columna].tolist()
     imc = df["IMC"].tolist()
     peso_lb = df["Peso"]
 
+    # Convertimos el peso a kilogramos, manteniendo el número de orden (n)
     peso_kg = [(n, libraKilogramo(p)) for n, p in peso_lb.iteritems()]
 
-    peso_under_70 = list()
-    peso_overeq_70 = list()
+    datos_grupo = {
+        'pgc': list(),               # PGC de cada individuo del grupo
+        'var': list(),               # Variable elegida
+        'imc>25': [int(), float()],  # Cant y % de individuos con IMC > 25
+    }
 
-    peso_under_70_pgc = list()
-    peso_under_70_abdomen = list()
-    peso_overeq_70_pgc = list()
-    peso_overeq_70_abdomen = list()
+    peso_por_grupo = {
+        # datos_grupo es un template para crear este diccionario.
+        # Lo copiamos para que ambos elementos no hagan referencia a la misma
+        # porción en memoria (cosas de Python)
+        '< 70': copy.deepcopy(datos_grupo),
+        '>= 70': copy.deepcopy(datos_grupo),
+    }
 
     for n, w in peso_kg:
         if w < 70:
-            peso_under_70.append(n)
-            peso_under_70_pgc.append(pgc_all[n])
-            peso_under_70_abdomen.append(abdomen_all[n])
+            grupo = '< 70'
         else:
-            peso_overeq_70.append(n)
-            peso_overeq_70_pgc.append(pgc_all[n])
-            peso_overeq_70_abdomen.append(abdomen_all[n])
+            grupo = '>= 70'
 
-    peso_under_70_imc25p = len(valuesAbove(peso_under_70, 25)) \
-        / len(peso_under_70)
-    peso_overeq_70_imc25p = len(valuesAbove(peso_overeq_70, 25)) \
-        / len(peso_overeq_70)
+        peso_por_grupo[grupo]['pgc'].append(pgc_all[n])
+        peso_por_grupo[grupo]['var'].append(variable_elegida_all[n])
+        if (pgc_all[n] > 25):
+            peso_por_grupo[grupo]['imc>25'][0] += 1
 
-    print("U 70: " + str(round(peso_under_70_imc25p*100, 2)))
-    print("OE 70: " + str(round(peso_overeq_70_imc25p*100, 2)))
+    # Se calcula el porcentaje de individuos con IMC > 25, en cada grupo
+    for grupo, _ in peso_por_grupo.items():
+        peso_por_grupo[grupo]['imc>25'][1] = \
+            peso_por_grupo[grupo]['imc>25'][0] \
+            / len(peso_por_grupo[grupo]['pgc'])
 
-    plt.plot(peso_under_70_abdomen, peso_under_70_pgc,
-             'g^', label='Peso menor a 70 kg')
-    plt.plot(peso_overeq_70_abdomen, peso_overeq_70_pgc,
-             'ro', label='Peso mayor o igual a 70 kg')
+    # Preparamos e imprimomos una tabla
+    encabezado = [
+        'Peso [kg]',
+        'Personas en\neste grupo',
+        'Personas con\nIMC mayor a 25',
+        'Proporción [%]'
+    ]
 
-    plt.legend()
-    plt.xlabel("Abdomen")
-    plt.ylabel("PGC")
-    plt.show()
+    datos_tabla = list()
+    for grupo, _ in peso_por_grupo.items():
+        datos_tabla.append(
+            [
+                grupo,
+                len(peso_por_grupo[grupo]['pgc']),
+                peso_por_grupo[grupo]['imc>25'][0],
+                peso_por_grupo[grupo]['imc>25'][1] * 100
+            ]
+        )
+
+    printTable(encabezado, datos_tabla)
+
+    # Gráficos
+    # Para crear dos gráficos superpuestos, en el primero se crea una
+    # plt.figure y en el segundo no, de forma tal que el segundo plt.plot se
+    # haga sobre la misma figura que el primero.
+    diagrama_puntos(
+        peso_por_grupo['< 70']['var'],
+        peso_por_grupo['< 70']['pgc'],
+        nombre_leyenda='Peso menor a 70 kg',
+        crear_figure=True,
+    )
+
+    diagrama_puntos(
+        peso_por_grupo['>= 70']['var'],
+        peso_por_grupo['>= 70']['pgc'],
+        marker_color='g',
+        marker_style='*',
+        nombre_leyenda='Peso mayor o igual a 70 kg',
+        titulo_figura='Diagramas de dispersión',
+        titulo_ejes=[columna + ' [cm]', 'PGC'],
+        mostrar_leyenda=True,
+        crear_figure=False
+    )
 
 
-def estimarPGC(h, a, n, sexo):
-    """---
-    sexo: 'M' (masculino) o 'F'(femenino)
+def ejercicio_M(df):
+    """Item M
+
+    En un artículo publicado en British Journal of Nutrition, un grupo de
+    científicos de Israel desarrolló distintas formulas para una estimación
+    rápida y económica del PGC. Las formulas que se muestran a continuación
+    estiman el PGC a partir de tres medidas en cm: la altura H, la circunferen-
+    cia abdominal A y la circunferencia del cuello N.
+        PGC = 10.1 – 0.239 H + 0.8 A – 0.5 N        (para hombres)
+        PGC = 19.2 – 0.239 H + 0.8 A – 0.5 N        (para mujeres)
+
+    Realice un gráfico superponiendo los datos de PGC de la tabla y los
+    calculados con estas fórmulas y comente lo observado.
+
+    Args:
+        df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
+        columna (string): Encabezado de la columna con la variable de mayor
+                          correlación con el PGC.
     """
-    est = 0
-    if sexo == 'M':
-        est = 10.1 - 0.239 * h + 0.8 * a - 0.5 * n
-    elif sexo == 'F':
-        est = 19.2 - 0.239 * h + 0.8 * a - 0.5 * n
-
-    return est
-
-
-def ejercicioM(df):
-    """---"""
 
     printHeader('M')
-    pgc = df["PGC"].tolist()
+
+    # Datos
+    pgc = df["PGC"]
+
     altura_in = df["Altura"].tolist()
     abdomen = df["Abdomen"].tolist()
     cuello = df["Cuello"].tolist()
 
-    altura_cm = [pulgadasCentimetro(a) for a in altura_in]
+    # Convertimos la altura a centímetros
+    altura_cm = [pulgadaCentimetro(a) for a in altura_in]
 
-    # Desconozco el sexo de los individuos. Estimo el PGC con ambos sexos
+    # Desconozco el sexo de los individuos. Estimo el PGC con ambos sexos.
     pgc_est_hombres = list()
     pgc_est_mujeres = list()
     for i in range(len(pgc)):
@@ -759,43 +894,83 @@ def ejercicioM(df):
                                           cuello[i],
                                           'F'))
 
-    n_pgc = list(range(1, len(pgc) + 1))
-    plt.plot(n_pgc, pgc,
-             'ro', label='PGC Medido')
-    plt.plot(n_pgc, pgc_est_hombres,
-             'g^', label='PGC Estimado: población masculina')
-    plt.plot(n_pgc, pgc_est_mujeres,
-             'bs', label='PGC Estimado: población femenina')
+    # Creamos dos listas, una con el número de orden de cada individuo, la
+    # segunda con el pgc medido de cada individuo.
+    n_pgc = list()
+    pgc_val = list()
+    for n, pgc in pgc.iteritems():
+        n_pgc.append(n)
+        pgc_val.append(pgc)
 
-    plt.legend()
-    plt.ylabel("PGC")
-    plt.show()
+    # Para crear tres gráficos superpuestos, en el primero se crea una
+    # plt.figure y en el resto no, de forma tal que el segundo y tercer
+    # plt.plot se hacen sobre la misma figura que el primero.
+    diagrama_puntos(
+        n_pgc,
+        pgc_val,
+        marker_color='forestgreen',
+        marker_alpha=0.2,
+        nombre_leyenda='PGC Medido',
+        crear_figure=True,
+    )
+
+    diagrama_puntos(
+        n_pgc,
+        pgc_est_hombres,
+        marker_color='blue',
+        marker_style='^',
+        marker_alpha=0.4,
+        nombre_leyenda='PGC estimado: Población masculina',
+        crear_figure=False,
+    )
+
+    diagrama_puntos(
+        n_pgc,
+        pgc_est_mujeres,
+        marker_color='fuchsia',
+        marker_style='*',
+        marker_alpha=0.4,
+        nombre_leyenda='PGC estimado: Población femenina',
+        titulo_figura='Comparación del PGC medido con fórmula de estimación',
+        titulo_ejes=['Número de orden', 'PGC'],
+        mostrar_leyenda=True,
+        crear_figure=False
+    )
 
 
 if __name__ == "__main__":
+    # Obtención de los datos
     datos = pd.read_csv('grasacorp.txt', delimiter='\t', header=None)
+
+    # Ponemos nombre a cada columna
     datos.columns = COLUMNAS
 
+    # Ejercicios
     print()
-    ejercicioA(datos)
+    ejercicio_A(datos)
     print()  # Línea en blanco
-    # ejercicioB(datos)
-    # print()
-    # ejercicioC(datos)
-    # print()
-    # ejercicioD(datos)
-    # print()
-    # ejercicioE(datos)
-    # print()
-    # ejercicioF(datos)
-    # print()
-    # ejercicioG(datos)
-    # print()
-    columna_menor_p = ejercicioH_I(datos)
-    # print()
-    ejercicioJ(datos, columna_menor_p)
-    # print()
-    # ejercicioK(datos)
-    # print()
-    # ejercicioM(datos)
-    # print()
+    ejercicio_B(datos)
+    print()
+    ejercicio_C(datos)
+    print()
+    ejercicio_D(datos)
+    print()
+    ejercicio_E(datos)
+    print()
+    ejercicio_F(datos)
+    print()
+    ejercicio_G(datos)
+    print()
+    columna_menor_p = ejercicio_H_I(datos)
+    print()
+    ejercicio_J(datos, columna_menor_p)
+    print()
+    ejercicio_K_L(datos, columna_menor_p)
+    print()
+    ejercicio_M(datos)
+    print()
+
+    # Mostramos todos los gráficos
+    plt.show()
+
+    plt.close()
