@@ -190,8 +190,6 @@ def ejercicioA(df):
         'Parámetro', 'Valor'
     ]
 
-    # print(pgc_parametros)
-
     print(
         tabulate(pgc_parametros.items(),    # Datos calculados previamente
                  headers=encabezado,        # Encabezados de la tabla
@@ -537,7 +535,34 @@ def ejercicioG(df):
 
 
 def ejercicioH_I(df):
-    """---"""
+    """Items H e I
+
+    H)
+    El coeficiente de correlación ρ es un parámetro que permite analizar el
+    grado de dependencia lineal entre los valores medidos de dos variables.
+    Si esas variables son independientes entonces el valor de ρ próximo a cero
+    mientras que valores cercanos en valor absoluto a 1 dan indicio de
+    dependencia lineal y esa situación de dependencia posibilita hacer
+    estimaciones de una variable dada un valor de la otra. El cálculo de ρ lo
+    realiza el procedimiento corr en Octave. Muestre una tabla con el
+    coeficiente ρ, calculado con estos datos, entre PGC y todas las
+    restantes variables de las columnas 3 a 17.
+
+    I)
+    Con la tabla del ítem anterior elija una de las variables que tenga el
+    valor mayor de ρ. Observe que la variable densidad no se recomienda para
+    ser elegida ya que para determinarla para una persona en particular habría
+    que conocer su volumen, y eso requeriría sumergirla! (y eso es lo que
+    quiere evitarse). Una vez elegida la variable entonces realice el diagrama
+    de dispersión de PGC en función de esta variable biométrica de fácil
+    medición.
+
+    Args:
+        df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
+
+    Returns:
+        string: Nombre de la columna con la variable de menor p respecto del PGC.
+    """
 
     printHeader('H | I')
     pgc = df["PGC"]
@@ -556,8 +581,18 @@ def ejercicioH_I(df):
         # Guardo el valor de p
         corr_coef[nombreColumna] = p
 
-        print("Correlación entre PGC y " + nombreColumna + ":  "
-              + str(round(p, 2)))
+        # print("Correlación entre PGC y " + nombreColumna + ":  "
+        #       + str(round(p, 2)))
+
+    encabezado = [
+        'Correlación del PGC', 'p'
+    ]
+    print(
+        tabulate(corr_coef.items(),    # Datos calculados previamente
+                 headers=encabezado,        # Encabezados de la tabla
+                 tablefmt='presto',         # Hacemos que se vea más bonita
+                 floatfmt=".2f")            # Redondeo a 2 decimales
+    )
 
     # Máximo p, despreciando la densidad
     p_maximo = ['', 0]
@@ -570,25 +605,69 @@ def ejercicioH_I(df):
             p_maximo[0] = nombre
             p_maximo[1] = abs(p)
 
-    print("Max: ")
-    print(p_maximo)
+    print()  # Línea en blanco para separar de la tabla
+    print(
+        "El 'p' máximo se obtiene por medio del " + p_maximo[0].lower()
+        + ", y su valor absoluto es: "
+        + str(round(p_maximo[1], 2))
+    )
 
-    plt.plot(df[p_maximo[0]], pgc, 'ro')
-    plt.xlabel(p_maximo[0])
-    plt.ylabel("PGC")
+    # Diagrama de dispersión en función de p_maximo[0] (variable con mayor p).
+    plt.plot(
+        df[p_maximo[0]],    # Datos eje abscisas
+        pgc,                # Datos eje ordenadas
+        color='b',          # Color ('b' = blue)
+        marker='o',         # Marcador ('o' significa "puntos" o "bolas")
+        linestyle='none',   # Estilo de línea (no tienen sentido en este caso)
+        fillstyle='full',   # Relleno del marcador
+        alpha=.3            # Transparencia interior del marcador
+    )
+
+    # Título ejes
+    plt.xlabel(p_maximo[0] + ' [cm]')
+    plt.ylabel('PGC')
+
     plt.show()
 
+    return p_maximo[0]
 
-def ejercicioJ(df):
-    """---"""
+
+def ejercicioJ(df, columna):
+    """Items J
+
+    Estimen PGC para los miembros del grupo que presente este trabajo usando
+    la medida de la variable elegida del ítem anterior.
+    En Octave/Matlab esta línea de comando realiza esa estimación:
+        polyval(polyfit(X,Y,1),a)
+    En esta invocación X es un vector con los datos de la variable elegida, Y
+    es un vector con los valores de PGC y a es una variable con el valor de la
+    variable para la persona de la que quiere estimarse PGC.
+    Esa línea de comando obtiene la evaluación del polinomio de grado 1 cuya
+    representación gráfica es la denominada recta de mínimos cuadrados que
+    mejor ajusta (en ese sentido de los cuadrados mínimos) el diagrama de
+    dispersión.
+
+    Args:
+        df (pandas data frame): Conjunto de datos del archivo 'grasacorp.txt'
+        columna (string): Encabezado de la columna con la variable de mayor
+                          correlación con el PGC.
+    """
 
     printHeader('J')
+
     pgc = df["PGC"].tolist()
-    abdomen = df["Abdomen"].tolist()
+
+    var_menor_p = df[columna].tolist()
 
     # TODO: Conseguir datos reales
     mediciones_alumnos = [123, 423, 653, 954, 135]
-    pgc_alumnos = np.polyval(np.polyfit(abdomen, pgc, 1), mediciones_alumnos)
+
+    # Las funciones polyval y polyfit de Numpy son el reemplazo de las
+    # funciones homónimas en Octave/Matlab.
+    pgc_alumnos = np.polyval(
+        np.polyfit(var_menor_p, pgc, 1),
+        mediciones_alumnos
+    )
 
     print(pgc_alumnos)
 
@@ -710,11 +789,11 @@ if __name__ == "__main__":
     # print()
     # ejercicioF(datos)
     # print()
-    ejercicioG(datos)
+    # ejercicioG(datos)
     # print()
-    # ejercicioH_I(datos)
+    columna_menor_p = ejercicioH_I(datos)
     # print()
-    # ejercicioJ(datos)
+    ejercicioJ(datos, columna_menor_p)
     # print()
     # ejercicioK(datos)
     # print()
