@@ -580,6 +580,32 @@ def ejercicio_E(df):
     peso_kg = [libraKilogramo(p) for p in peso_lb]
     altura_cm = [pulgadaCentimetro(a) for a in altura_in]
 
+    # Cálculos extra para el informe escrito.
+    # Se crea un diccionario que contiene la media, mediana, máximo y mínimo de
+    # cada conjunto de datos, y luego se imprime una tabla con los mismos.
+    extra = dict()
+    extra[''] = ['Peso [kg]', 'Altura [cm]']
+
+    # Media
+    extra['Media muestral'] = [
+        statistics.mean(peso_kg),
+        statistics.mean(altura_cm)
+    ]
+
+    # Mediana
+    extra['Mediana'] = [
+        statistics.median(peso_kg),
+        statistics.median(altura_cm)
+    ]
+
+    # Max,min
+    extra['Máximo'] = [max(peso_kg), max(altura_cm)]
+    extra['Mínimo'] = [min(peso_kg), min(altura_cm)]
+
+    # Tabla
+    encabezado = [key for key, _ in extra.items()]
+    printTable(encabezado, extra)
+
     # Gráfico
     diagrama_puntos(
         altura_cm,
@@ -1019,6 +1045,6 @@ if __name__ == "__main__":
     print()
 
     # Mostramos todos los gráficos
-    plt.show()
+    # plt.show()
 
     plt.close()
