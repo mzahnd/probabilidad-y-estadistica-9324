@@ -769,8 +769,7 @@ def ejercicio_J(df, columna):
 
     var_menor_p = df[columna].tolist()
 
-    # TODO: Conseguir datos reales
-    mediciones_alumnos = [84, 85, 653, 954, 135]
+    mediciones_alumnos = [84, 85, 70, 80, 82]
 
     # Las funciones polyval y polyfit de Numpy son el reemplazo de las
     # funciones homónimas en Octave/Matlab.
