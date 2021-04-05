@@ -1045,6 +1045,6 @@ if __name__ == "__main__":
     print()
 
     # Mostramos todos los gráficos
-    # plt.show()
+    plt.show()
 
     plt.close()
