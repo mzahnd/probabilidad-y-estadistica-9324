@@ -1078,27 +1078,26 @@ if __name__ == "__main__":
     # Ejercicios
 
     ejercicio_A(datos)
-    
+
     ejercicio_B(datos)
-    
+
     ejercicio_C(datos)
-    
+
     ejercicio_D(datos)
-    
+
     ejercicio_E(datos)
-    
+
     ejercicio_F(datos)
-    
+
     ejercicio_G(datos)
-    
+
     columna_menor_p = ejercicio_H_I(datos)
-    
+
     ejercicio_J(datos, columna_menor_p)
-    
+
     ejercicio_K_L(datos, columna_menor_p)
-    
+
     ejercicio_M(datos)
-    
 
     # Mostramos todos los gráficos
     plt.show()
