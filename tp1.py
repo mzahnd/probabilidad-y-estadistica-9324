@@ -497,15 +497,19 @@ def ejercicio_C(df):
     # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.boxplot.html
 
     # Obteniendo la lista con dichos datos
-    fliers = boxplot_ret['fliers'][0].get_data()[1]
+    # fliers = boxplot_ret['fliers'][0].get_data()[1]
 
     # Simplemente se divide la cantidad de outliers por la cantidad de
     # mediciones.
-    proporcion_outliers = len(fliers) / len(pgc)
+    # proporcion_outliers = len(fliers) / len(pgc)
 
     # E imprimimos el porcentaje redondeando a 2 decimales.
-    print("Porcentaje de outliers: " +
-          str(round(proporcion_outliers * 100, 2)) + "%")
+    # print("Porcentaje de outliers: " +
+    #       str(round(proporcion_outliers * 100, 2)) + "%")
+    
+    # Cabe descatar que, si se remueven los comentarios de las líneas previas
+    # y se ejecuta el programa, ambos resultados serán iguales, pues el cálculo
+    # se realiza del mismo modo.
 
 
 def ejercicio_D(df):
@@ -979,6 +983,57 @@ def ejercicio_M(df):
     # Para crear tres gráficos superpuestos, en el primero se crea una
     # plt.figure y en el resto no, de forma tal que el segundo y tercer
     # plt.plot se hacen sobre la misma figura que el primero.
+
+    # Primero graficamos el PGC medido en relación con el estimado a partir del
+    # abdomen tomando una población completamente masculina.
+    diagrama_puntos(
+        n_pgc,
+        pgc_val,
+        marker_color='forestgreen',
+        marker_alpha=0.2,
+        nombre_leyenda='PGC Medido',
+        crear_figure=True,
+    )
+
+    diagrama_puntos(
+        n_pgc,
+        pgc_est_hombres,
+        marker_color='blue',
+        marker_style='^',
+        marker_alpha=0.4,
+        nombre_leyenda='PGC estimado: Población masculina',
+        titulo_figura='Comparación del PGC medido con fórmula de estimación',
+        titulo_ejes=['Número de orden', 'PGC'],
+        mostrar_leyenda=True,
+        crear_figure=False,
+    )
+
+    # Para satisfacer nuestra curiosidad, ahora suponemos una población
+    # completamente femenina.
+    diagrama_puntos(
+        n_pgc,
+        pgc_val,
+        marker_color='forestgreen',
+        marker_alpha=0.2,
+        nombre_leyenda='PGC Medido',
+        crear_figure=True,
+    )
+
+    diagrama_puntos(
+        n_pgc,
+        pgc_est_mujeres,
+        marker_color='fuchsia',
+        marker_style='*',
+        marker_alpha=0.4,
+        nombre_leyenda='PGC estimado: Población femenina',
+        titulo_figura='Comparación del PGC medido con fórmula de estimación',
+        titulo_ejes=['Número de orden', 'PGC'],
+        mostrar_leyenda=True,
+        crear_figure=False
+    )
+
+    # Por último, repetimos el gráfico con los tres conjuntos de datos al mismo
+    # tiempo.
     diagrama_puntos(
         n_pgc,
         pgc_val,
