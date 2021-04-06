@@ -83,6 +83,7 @@ def printHeader(letra):
     Args:
         letra (str): Letra del o los ejercicios,
     """
+    print()                             # Línea en blanco
     if (len(letra) > 1):
         print("Ejercicios " + letra)
     else:
@@ -506,7 +507,7 @@ def ejercicio_C(df):
     # E imprimimos el porcentaje redondeando a 2 decimales.
     # print("Porcentaje de outliers: " +
     #       str(round(proporcion_outliers * 100, 2)) + "%")
-    
+
     # Cabe descatar que, si se remueven los comentarios de las líneas previas
     # y se ejecuta el programa, ambos resultados serán iguales, pues el cálculo
     # se realiza del mismo modo.
@@ -1075,29 +1076,29 @@ if __name__ == "__main__":
     datos.columns = COLUMNAS
 
     # Ejercicios
-    print()
+
     ejercicio_A(datos)
-    print()  # Línea en blanco
+    
     ejercicio_B(datos)
-    print()
+    
     ejercicio_C(datos)
-    print()
+    
     ejercicio_D(datos)
-    print()
+    
     ejercicio_E(datos)
-    print()
+    
     ejercicio_F(datos)
-    print()
+    
     ejercicio_G(datos)
-    print()
+    
     columna_menor_p = ejercicio_H_I(datos)
-    print()
+    
     ejercicio_J(datos, columna_menor_p)
-    print()
+    
     ejercicio_K_L(datos, columna_menor_p)
-    print()
+    
     ejercicio_M(datos)
-    print()
+    
 
     # Mostramos todos los gráficos
     plt.show()
